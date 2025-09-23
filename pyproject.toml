@@ -4,23 +4,27 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "onnxmodels"
-authors = [{ name="Luca Zoffoli", email="lzoffoli@technogym.com" }]
-description = "Small wrapper to read and use onnx models with python"
+version = "0.1.0"  # Versioni dovrebbero seguire lo schema semantico: MAJOR.MINOR.PATCH
+description = "Small wrapper to read and use ONNX models with Python"
+authors = [
+    { name = "Luca Zoffoli", email = "lzoffoli@technogym.com" }
+]
 requires-python = ">=3.12"
 classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: MIT License",
-    "Operating System :: OS Independent",
+    "Operating System :: OS Independent"
 ]
-version = "86"
 dynamic = ["readme", "dependencies"]
-packages=["onnxmodels"]
-
-[tool.setuptools.dynamic]
-dependencies = {file = ["requirements.txt"]}
-readme = {file = "README.md"}
-
 
 [project.urls]
-"Homepage" = "https://github.com/lzoffoli-tg/onnxmodels"
+Homepage = "https://github.com/lzoffoli-tg/onnxmodels"
 "Bug Tracker" = "https://github.com/lzoffoli-tg/onnxmodels/issues"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["onnxmodels"]
+
+[tool.setuptools.dynamic]
+dependencies = { file = ["requirements.txt"] }
+readme = { file = "README.md" }
