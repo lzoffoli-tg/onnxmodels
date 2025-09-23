@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "onnxmodels"
+authors = [{ name="Luca Zoffoli", email="lzoffoli@technogym.com" }]
+description = "Small wrapper to read and use onnx models with python"
+requires-python = ">=3.12"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+version = "86"
+dynamic = ["readme", "dependencies"]
+
+[tool.setuptools.dynamic]
+dependencies = {file = ["requirements.txt"]}
+readme = {file = "README.md"}
+
+
+[project.urls]
+"Homepage" = "https://github.com/lzoffoli-tg/onnxmodels"
+"Bug Tracker" = "https://github.com/lzoffoli-tg/onnxmodels/issues"

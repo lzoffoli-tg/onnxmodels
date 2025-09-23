@@ -1,0 +1,5 @@
+*/.venv
+*/.pytest_cache
+*.code-workspace
+*.pyc
+*/__pycache__*
