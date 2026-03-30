@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "onnxmodels"
-version = "0.1.0"  # Versioni dovrebbero seguire lo schema semantico: MAJOR.MINOR.PATCH
+version = "2"  # Versioni dovrebbero seguire lo schema semantico: MAJOR.MINOR.PATCH
 description = "Small wrapper to read and use ONNX models with Python"
 authors = [
     { name = "Luca Zoffoli", email = "lzoffoli@technogym.com" }

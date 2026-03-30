@@ -10,19 +10,6 @@ import pandas as pd
 __all__ = ["OnnxModel"]
 
 
-"""
-onnxmodels module
-This module provides a wrapper OnnxModel class that allows to use onnx models with python.
-"""
-
-import numpy as np
-import onnx
-from onnxruntime import InferenceSession
-import pandas as pd
-
-__all__ = ["OnnxModel"]
-
-
 class OnnxModel:
     """
     ONNX model wrapper for inference with flexible input types.
@@ -39,7 +26,10 @@ class OnnxModel:
     """
 
     def __init__(
-        self, model_path: str, input_labels: list[str], output_labels: list[str]
+        self,
+        model_path: str,
+        input_labels: list[str] = [],
+        output_labels: list[str] = [],
     ):
         self.model_path = model_path
         self._input_labels = input_labels
@@ -75,9 +65,9 @@ class OnnxModel:
         TypeError
             If input or output type is unsupported.
         """
-        target_cols = len(self._input_labels)
+        target_cols = min(1, len(self.input_labels))
         wrong_cols = f"Expected input tensor with shape (N, {target_cols})"
-        col_list = f"DataFrame or dict must contain columns/keys: {self._input_labels}"
+        col_list = f"DataFrame or dict must contain columns/keys: {self.input_labels}"
 
         # Handle numpy array
         if isinstance(data, np.ndarray):
@@ -88,24 +78,30 @@ class OnnxModel:
 
         # Handle pandas DataFrame
         elif isinstance(data, pd.DataFrame):
-            if not all(label in data.columns for label in self._input_labels):
-                raise ValueError(col_list)
-            vals = data[self._input_labels].values.astype(np.float32)
+            if len(self.input_labels) > 0:
+                if not all(label in data.columns for label in self.input_labels):
+                    raise ValueError(col_list)
+                vals = data[self.input_labels].values.astype(np.float32)
+            else:
+                vals = data.to_numpy().astype(np.float32)
             source = "dataframe"
 
         # Handle dict
         elif isinstance(data, dict):
-            if not all(label in data.keys() for label in self._input_labels):
-                raise ValueError(col_list)
-            vals = []
-            for i in self._input_labels:
-                v = data[i]
-                if isinstance(v, (pd.DataFrame, pd.Series)):
-                    vals.append(np.asarray(v).astype(np.float32).flatten())
-                elif isinstance(v, list):
-                    vals.append(np.asarray(v, dtype=np.float32).flatten())
-                else:
-                    vals.append(np.asarray(v).astype(np.float32).flatten())
+            if len(self.input_labels) > 0:
+                if not all(label in data.keys() for label in self._input_labels):
+                    raise ValueError(col_list)
+                vals = []
+                for i in self._input_labels:
+                    v = data[i]
+                    if isinstance(v, (pd.DataFrame, pd.Series)):
+                        vals.append(np.asarray(v).astype(np.float32).flatten())
+                    elif isinstance(v, list):
+                        vals.append(np.asarray(v, dtype=np.float32).flatten())
+                    else:
+                        vals.append(np.asarray(v).astype(np.float32).flatten())
+            else:
+                vals = list(data.values())
             vals = np.stack(vals, axis=1)
             source = "dict"
 
@@ -130,15 +126,23 @@ class OnnxModel:
         if source == "ndarray" or source == "list":
             return outputs
         if source == "dict":
+            if len(self.output_labels) == 0:
+                keys = ["output"]
+            else:
+                keys = self.output_labels
             return {
                 i: v.astype(np.float32).flatten()
-                for i, v in zip(self.output_labels, outputs.T)  # type: ignore
+                for i, v in zip(keys, outputs.T)  # type: ignore
             }
         if source == "dataframe":
+            if len(self.output_labels) == 0:
+                cols = ["output"]
+            else:
+                cols = self.output_labels
             return pd.DataFrame(
                 data=outputs,  # type: ignore
                 index=data.index,  # type: ignore
-                columns=self.output_labels,
+                columns=cols,
             )
 
         raise TypeError("Unsupported output type")
